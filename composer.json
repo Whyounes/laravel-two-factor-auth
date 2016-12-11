@@ -1,0 +1,38 @@
+{
+    "name": "whyounes/laravel-two-factor-auth",
+    "type": "library",
+    "description": "Laravel two factor authentication",
+    "keywords": [
+        "auth",
+        "passwordless"
+    ],
+    "homepage": "https://github.com/whyounes/laravel-two-factor-auth",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rafie Younes",
+            "email": "younes.rafie@gmail.com",
+            "homepage": "http://younesrafie.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^5.5.9 || ^7.0",
+        "illuminate/database": "5.1.* || 5.2.* || 5.3.*",
+        "illuminate/config": "5.1.* || 5.2.* || 5.3.*",
+        "illuminate/events": "5.1.* || 5.2.* || 5.3.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8 || ^5.0",
+        "orchestra/testbench": "~3.0",
+        "mockery/mockery": "~0.9.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Whyounes\\TFAuth\\": "src"
+        },
+        "classmap": [
+            "tests"
+        ]
+    }
+}
