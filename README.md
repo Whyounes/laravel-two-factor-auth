@@ -1,6 +1,6 @@
-# Laravel Passwordless
+# Laravel Two Factor Authentication
 
-Passwordless authentication for Laravel 5
+Two Factor Authentication for Laravel 5.3+
 
 <p>
     <a href="https://travis-ci.org/Whyounes/laravel-passwordless-auth">
@@ -16,16 +16,16 @@ Passwordless authentication for Laravel 5
 Add the package to your project using Composer:
 
 ```bash
-composer require whyounes/laravel-passwordless-auth
+composer require whyounes/laravel-two-factor-auth
 ```
 
 Publish package assets:
 
 ```php
-php artisan vandor:publish
+php artisan vendor:publish
 ```
 
-Run the migration to create the tokens table:
+Run the migrations:
 
 ```php
 php artisan migrate
@@ -39,18 +39,18 @@ Add it to you providers list:
 // ...
 'providers' => [
     // ...
-    Whyounes\Passwordless\Providers\PasswordlessProvider::class,
+    Whyounes\TFAuth\TwoFAProvider::class,
 };
 ```
 
-Add the `Passwordless` trait to your user model:
+Add the `TFAuthTrait` trait to your user model:
 
 ```php
 // app/User.php
 
 class User extends Authenticatable
 {
-    use Whyounes\Passwordless\Traits\Passwordless;
+    use \Whyounes\TFAuth\Models\TFAuthTrait;
 
     // ...
 }

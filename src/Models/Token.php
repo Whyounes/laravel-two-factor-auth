@@ -4,6 +4,7 @@ namespace Whyounes\TFAuth\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
 use Whyounes\TFAuth\Contracts\VerificationCodeSender;
 use Whyounes\TFAuth\Exceptions\UserNotFoundException;
 
@@ -70,7 +71,7 @@ class Token extends Model
         }
 
         /** @var $codeSender VerificationCodeSender */
-        $codeSender = app(VerificationCodeSender::class);
+        $codeSender = App::make(VerificationCodeSender::class);
         $codeSender->sendCodeViaSMS($this->code, $this->user->getPhoneNumber());
 
         return true;

@@ -54,7 +54,7 @@ class Twilio implements VerificationCodeSender
             $this->client->account->calls->create(
                 $phone,
                 $this->number,
-                ["url" => route('tfa.services/twilio.say', ["text" => printf($message, $code)])]
+                ["url" => route('tfa.services.twilio.say', ["text" => printf($message, $code)])]
             );
         } catch (\Exception $ex) {
             return false;
