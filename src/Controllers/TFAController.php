@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Whyounes\TFAuth\Controllers;
 
 
@@ -8,12 +7,11 @@ use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 use Whyounes\TFAuth\Models\Token;
 
 trait TFAController
 {
-    protected static $verificationCodeRoute = 'login/tfa';
-
     /**
      * Get verification route
      *
@@ -21,7 +19,7 @@ trait TFAController
      */
     public static function getVerificationCodeRoute()
     {
-        return static::$verificationCodeRoute;
+        return 'login/tfa';
     }
 
     /**
@@ -43,10 +41,9 @@ trait TFAController
             return $this->sendLockoutResponse($request);
         }
 
-        if ($this->attemptLogin($request)) {
-            $this->sendVerificationCodeRequest($request);
-
-            return redirect(static::$verificationCodeRoute);
+        $token = $this->sendVerificationCode($request);
+        if ($token) {
+            return redirect(static::getVerificationCodeRoute());
         }
 
         // If the login attempt was unsuccessful we will increment the number of attempts
@@ -63,14 +60,14 @@ trait TFAController
      * @param Request $request
      * @return null|Token
      */
-    public function sendVerificationCodeRequest(Request $request)
+    public function sendVerificationCode(Request $request)
     {
         /** @var $auth UserProvider */
         $auth = App::make('auth')->getProvider();
         if ($user = $auth->retrieveByCredentials($request->only('email', 'password'))) {
-            $token = Token::create([
-                'user_id' => $user->id
-            ]);
+            $token = App::make(Token::class);
+            $token->user_id = $user->id;
+            $token->save();
 
             if ($token->sendCode()) {
                 $session = session();
@@ -91,11 +88,34 @@ trait TFAController
     }
 
     /**
+     * Re-send verification code
+     *
+     * @return mixed
+     */
+    public function resendVerificationCode()
+    {
+        $tokenId = session()->get("token_id");
+        $token = App::make(Token::class)->find($tokenId);
+
+        if (!$token || !$token->sendCode()) {
+            return [
+                'error' => true,
+                'message' => 'Invalid token ID'
+            ];
+        }
+
+        return [
+            'error' => false,
+            'message' => ''
+        ];
+    }
+
+    /**
      * Show second factor form
      *
      * @return mixed
      */
-    public function showCodeForm()
+    public function showVerificationCodeForm()
     {
         if (!session()->has("token_id", "user_id")) {
             return redirect("login");
@@ -110,7 +130,7 @@ trait TFAController
      * @param Request $request
      * @return mixed
      */
-    public function storeCodeForm(Request $request)
+    public function storeVerificationCodeForm(Request $request)
     {
         if (!session()->has("token_id", "user_id")) {
             return redirect("login");
@@ -142,14 +162,14 @@ trait TFAController
             return redirect()
                 ->back()
                 ->withInput($request->only('code'))
-                ->withErrors([Lang::get('auth.failed')]);
+                ->withErrors([Lang::get('auth.invalid_token')]);
         }
 
         $token->used = true;
         $token->save();
 
         $session = session();
-        $session->guard()->login($token->user, $session->get('remember', false));
+        App::make('auth')->guard()->login($token->user, $session->get('remember', false));
         $session->forget('token_id', 'user_id', 'remember');
 
         return ($useThrottlesLogins) ? $this->sendLoginResponse($request) : redirect($this->redirectTo ?: '/home');

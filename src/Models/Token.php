@@ -17,6 +17,8 @@ class Token extends Model
 {
     const EXPIRATION_TIME = 15; // minutes
 
+    protected $table = 'tfa_tokens';
+
     protected $fillable = [
         'code',
         'user_id',
@@ -39,6 +41,9 @@ class Token extends Model
      */
     public function generateCode()
     {
+        /**
+         * @TODO generate code length using config
+         */
         $code = mt_rand(1000, 9999);
 
         return $code;

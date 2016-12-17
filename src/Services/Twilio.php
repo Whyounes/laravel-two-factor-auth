@@ -39,7 +39,7 @@ class Twilio implements VerificationCodeSender
         try {
             $this->client->messages->create($phone, [
                 "from" => $this->number,
-                "body" => printf($message, $code)
+                "body" => sprintf($message, $code)
             ]);
         } catch (\Exception $ex) {
             return false;
@@ -54,7 +54,7 @@ class Twilio implements VerificationCodeSender
             $this->client->account->calls->create(
                 $phone,
                 $this->number,
-                ["url" => route('tfa.services.twilio.say', ["text" => printf($message, $code)])]
+                ["url" => route('tfa.services.twilio.say', ["text" => sprintf($message, $code)])]
             );
         } catch (\Exception $ex) {
             return false;

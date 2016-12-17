@@ -20,7 +20,7 @@
                             </div>
                         @endif
 
-                        <form class="form-horizontal" role="form" method="POST" action="{{ url(\Whyounes\TFAuth\Controllers\TFAController::getVerificationCodeRoute()) }}">
+                        <form class="form-horizontal" role="form" method="POST" action="">
                             {{ csrf_field() }}
 
                             <div class="form-group">

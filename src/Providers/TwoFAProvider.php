@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Twilio\Rest\Client;
 use Whyounes\TFAuth\Contracts\VerificationCodeSender;
+use Whyounes\TFAuth\Services\Twilio;
 
 /**
  * Class TwoFAProvider
@@ -36,7 +37,7 @@ class TwoFAProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/resources/views', 'tfa');
 
         $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/tfa'),
+            __DIR__.'/../../resources/views' => resource_path('views/vendor/tfa'),
         ]);
     }
 
@@ -54,6 +55,8 @@ class TwoFAProvider extends ServiceProvider
 
     /**
      * Register container bindings
+     *
+     * @return void
      */
     public function registerBindings()
     {
@@ -61,11 +64,13 @@ class TwoFAProvider extends ServiceProvider
             return new Client(config('services.twilio.sid'), config('services.twilio.token'));
         });
 
-        $this->app->bind(VerificationCodeSender::class, Client::class);
+        $this->app->bind(VerificationCodeSender::class, Twilio::class);
     }
 
     /**
      * Register application event listeners
+     *
+     * @return void
      */
     public function registerEvents()
     {
@@ -83,6 +88,8 @@ class TwoFAProvider extends ServiceProvider
 
     /**
      * Register routes
+     *
+     * @return void
      */
     public function registerRoutes()
     {
@@ -93,6 +100,5 @@ class TwoFAProvider extends ServiceProvider
 
             return $response;
         })->name('tfa.services/twilio.say');
-
     }
 }
