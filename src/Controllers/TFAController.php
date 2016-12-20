@@ -4,6 +4,7 @@ namespace Whyounes\TFAuth\Controllers;
 
 
 use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -13,20 +14,10 @@ use Whyounes\TFAuth\Models\Token;
 trait TFAController
 {
     /**
-     * Get verification route
-     *
-     * @return string
-     */
-    public static function getVerificationCodeRoute()
-    {
-        return 'login/tfa';
-    }
-
-    /**
      * Handle a login request to the application.
      *
      * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @return mixed
      */
     public function login(Request $request)
     {
@@ -35,7 +26,7 @@ trait TFAController
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
-        if ($this->hasTooManyLoginAttempts($request)) {
+        if ($this->hasThrottleLoginTrait() && $this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
             return $this->sendLockoutResponse($request);
@@ -49,9 +40,25 @@ trait TFAController
         // If the login attempt was unsuccessful we will increment the number of attempts
         // to login and redirect the user back to the login form. Of course, when this
         // user surpasses their maximum number of attempts they will get locked out.
-        $this->incrementLoginAttempts($request);
+        if ($this->hasThrottleLoginTrait()) {
+            $this->incrementLoginAttempts($request);
+        }
 
-        return $this->sendFailedLoginResponse($request);
+        return redirect()->back()
+            ->withInput($request->all())
+            ->withErrors([
+                Lang::has('auth.failed')
+            ]);
+    }
+
+    /**
+     * If this class implement the ThrottleLogins Trait
+     *
+     * @return bool
+     */
+    protected function hasThrottleLoginTrait()
+    {
+        return $this instanceof ThrottlesLogins;
     }
 
     /**
@@ -66,13 +73,13 @@ trait TFAController
         $auth = App::make('auth')->getProvider();
         if ($user = $auth->retrieveByCredentials($request->only('email', 'password'))) {
             $token = App::make(Token::class);
-            $token->user_id = $user->id;
+            $token->user_id = $user->getAuthIdentifier();
             $token->save();
 
             if ($token->sendCode()) {
                 $session = session();
                 $session->set("token_id", $token->id);
-                $session->set("user_id", $user->id);
+                $session->set("user_id", $user->getAuthIdentifier());
                 $session->set("remember", $session->get('remember', false));
 
                 return $token;
@@ -85,6 +92,16 @@ trait TFAController
         }
 
         return null;
+    }
+
+    /**
+     * Get verification route
+     *
+     * @return string
+     */
+    public static function getVerificationCodeRoute()
+    {
+        return 'login/tfa';
     }
 
     /**
@@ -140,22 +157,21 @@ trait TFAController
             'code' => 'required'
         ]);
 
-        $useThrottlesLogins = $this instanceof ThrottlesLogins;
-        if (($useThrottlesLogins) && $this->hasTooManyLoginAttempts($request)) {
+        if ($this->hasThrottleLoginTrait() && $this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
             return $this->sendLockoutResponse($request);
         }
 
         /** @var $token Token */
-        $token = Token::find(session()->get("token_id"));
+        $token = App::make(Token::class)->find(session()->get("token_id"));
         if (!$token ||
             !$token->user ||
             !$token->isValid() ||
             $request->get('code') !== $token->code ||
             (int)session()->get("user_id") !== $token->user->id
         ) {
-            if ($useThrottlesLogins) {
+            if ($this->hasThrottleLoginTrait()) {
                 $this->incrementLoginAttempts($request);
             }
 
@@ -172,6 +188,11 @@ trait TFAController
         App::make('auth')->guard()->login($token->user, $session->get('remember', false));
         $session->forget('token_id', 'user_id', 'remember');
 
-        return ($useThrottlesLogins) ? $this->sendLoginResponse($request) : redirect($this->redirectTo ?: '/home');
+        if($this->hasThrottleLoginTrait()) {
+            $request->session()->regenerate();
+            $this->clearLoginAttempts($request);
+        }
+
+        return redirect(isset($this->redirectTo) ? $this->redirectTo : '/home');
     }
 }
