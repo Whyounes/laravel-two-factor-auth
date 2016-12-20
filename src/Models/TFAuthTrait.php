@@ -38,7 +38,7 @@ trait TFAuthTrait
      *
      * @return bool
      */
-    public function hasTAEnabled()
+    public function hasTFAEnabled()
     {
         return true;
     }
