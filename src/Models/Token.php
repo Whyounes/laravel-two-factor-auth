@@ -42,10 +42,10 @@ class Token extends Model
      */
     public function generateCode()
     {
-        /**
-         * @TODO generate code length using config
-         */
-        $code = mt_rand(1000, 9999);
+        $codeLength = (int) config('auth.verification_code_length', 6) - 1;
+        $min = pow(10, $codeLength);
+        $max = $min * 10 - 1;
+        $code = mt_rand($min, $max);
 
         return $code;
     }
