@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Whyounes\TFAuth\Services;
-
 
 use Twilio\Rest\Client;
 use Whyounes\TFAuth\Contracts\VerificationCodeSender;
