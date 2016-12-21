@@ -3,11 +3,11 @@
 Two Factor Authentication for Laravel 5.3+
 
 <p>
-    <a href="https://travis-ci.org/Whyounes/laravel-passwordless-auth">
-        <img src="https://travis-ci.org/Whyounes/laravel-passwordless-auth.svg?branch=master" alt="Build status" />
+    <a href="https://travis-ci.org/Whyounes/laravel-two-factor-auth">
+        <img src="https://travis-ci.org/Whyounes/laravel-two-factor-auth.svg?branch=master" alt="Build status" />
     </a>
-    <a href="https://insight.sensiolabs.com/projects/8c7964bf-58d5-4229-928b-d57010f71977">
-        <img src="https://insight.sensiolabs.com/projects/8c7964bf-58d5-4229-928b-d57010f71977/mini.png" />
+    <a href="https://insight.sensiolabs.com/projects/c5adaac8-2a85-4e05-ac95-c635ff4c8a23">
+        <img src="https://insight.sensiolabs.com/projects/c5adaac8-2a85-4e05-ac95-c635ff4c8a23/mini.png" />
     </a>
 </p>
 

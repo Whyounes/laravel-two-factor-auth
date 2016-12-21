@@ -3,7 +3,6 @@
 namespace Whyounes\TFAuth\Controllers;
 
 use Illuminate\Contracts\Auth\UserProvider;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;

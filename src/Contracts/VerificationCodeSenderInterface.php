@@ -8,7 +8,7 @@ namespace Whyounes\TFAuth\Contracts;
  *
  * @package Whyounes\TFAuth\Contracts
  */
-interface VerificationCodeSender
+interface VerificationCodeSenderInterface
 {
 
     /**

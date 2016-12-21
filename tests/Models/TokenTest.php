@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Config;
 use Orchestra\Testbench\TestCase;
-use Whyounes\TFAuth\Contracts\VerificationCodeSender;
+use Whyounes\TFAuth\Contracts\VerificationCodeSenderInterface;
 use Whyounes\TFAuth\Models\Token;
 use Mockery as m;
 
@@ -68,11 +68,11 @@ class TokenTest extends TestCase
      */
     public function assert_send_code_success()
     {
-        $stubVerificationCodeSender = m::mock(VerificationCodeSender::class);
+        $stubVerificationCodeSender = m::mock(VerificationCodeSenderInterface::class);
         $stubVerificationCodeSender->shouldReceive('sendCodeViaSMS')
             ->once()
             ->andReturn(true);
-        $this->app->instance(VerificationCodeSender::class, $stubVerificationCodeSender);
+        $this->app->instance(VerificationCodeSenderInterface::class, $stubVerificationCodeSender);
 
         $stubUser = m::mock(stdClass::class);
         $stubUser->shouldReceive('hasTFAEnabled')

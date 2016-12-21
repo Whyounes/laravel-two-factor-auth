@@ -3,14 +3,14 @@
 namespace Whyounes\TFAuth\Services;
 
 use Twilio\Rest\Client;
-use Whyounes\TFAuth\Contracts\VerificationCodeSender;
+use Whyounes\TFAuth\Contracts\VerificationCodeSenderInterface;
 
 /**
  * Class Twilio
  *
  * @package Whyounes\TFAuth\Services
  */
-class Twilio implements VerificationCodeSender
+class Twilio implements VerificationCodeSenderInterface
 {
     /**
      * Twilio client
@@ -55,7 +55,6 @@ class Twilio implements VerificationCodeSender
                 ["url" => route('tfa.services.twilio.say', ["text" => sprintf($message, $code)])]
             );
         } catch (\Exception $ex) {
-            throw $ex;
             return false;
         }
 

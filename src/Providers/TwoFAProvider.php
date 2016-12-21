@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Twilio\Rest\Client;
-use Whyounes\TFAuth\Contracts\VerificationCodeSender;
+use Whyounes\TFAuth\Contracts\VerificationCodeSenderInterface;
 use Whyounes\TFAuth\Services\Twilio;
 
 /**
@@ -64,7 +64,7 @@ class TwoFAProvider extends ServiceProvider
             return new Client(config('services.twilio.sid'), config('services.twilio.token'));
         });
 
-        $this->app->bind(VerificationCodeSender::class, Twilio::class);
+        $this->app->bind(VerificationCodeSenderInterface::class, Twilio::class);
     }
 
     /**
