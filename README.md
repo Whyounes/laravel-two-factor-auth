@@ -58,108 +58,49 @@ class User extends Authenticatable
 
 ## Configurations
 
-If you don't want to use the user email along with the token, you can change it by overriding the following method:
+There are only two configurations that you can set:
+
+- `delete_verification_code_after_auth`: Set it to `true` if you want to delete unused verification codes after login.
+- `verification_code_length`: How long the verification code is.
+
+## Verification Code Sender
+
+By default, the package uses [Twilio](http://twilio.com/) to send verification codes (SMS and Phone). You can easily change it like this:
 
 ```php
-// app/User.php
+use Whyounes\TFAuth\Contracts\VerificationCodeSenderInterface;
 
-class User extends Authenticatable
+class MyService implements VerificationCodeSenderInterface
 {
-    use Whyounes\Passwordless\Traits\Passwordless;
-
-    // ...
-    
-    protected function getIdentifierKey()
+    public function sendCodeViaSMS($code, $phone, $message = "Your verification code is %s")
     {
-        return 'email';
+        // Send code and return boolean for status
+    }
+
+    public function sendCodeViaPhone($code, $phone, $message = "Your verification code is %s")
+    {
+        // Send code and return boolean for status
     }
 }
 ```
 
-You can change the expiration time inside the `config/passwordless.php` file:
+Next we should switch implementation in the container:
 
 ```php
-// config/passwordless.php
+use Whyounes\TFAuth\Contracts\VerificationCodeSenderInterface;
 
-return [
-    'expire_in' => 15, // Minutes
-    'empty_tokens_after_login' => true // Empty user tokens after login
-];
+class AppProvider extends ServiceProvider
+{
+    public function register()
+    {
+        // ...
+        $this->app->bind(VerificationCodeSenderInterface::class, MyService::class);
+    }
+}
 ```
 
-You can set the `empty_tokens_after_login` config to false if you don't want to delete unused tokens from DB.
+That's it, your new service is going to be used for sending verification codes. If you add a new service implementation, you can submit a new pull request and I'll add it to the package :)
 
 ## Example
 
-Display the login form for user to type the email:
-
-```php
-// routes/web.php
-
-Route::post('/login/direct', function() {
-    return view('login.direct');
-});
-```
-
-Catch the form submission:
-
-```php
-// routes/web.php
-
-Route::post('/login/direct', function(Request $request) {
-    // send link to user mail
-    $user = App\User::where('email', $request->get('email'))->first();
-    if (!$user) {
-        return redirect()->back(404)->with('error', 'User not found');
-    }
-
-    // generate token and save it
-    $token = $user->generateToken(true);
-
-    // send email to user
-    \Mail::send("mails.login", ['token' => $token], function($message) use($token) {
-        $message->to($token->user->email);
-    });
-});
-```
-
-Catch the login link request:
-
-```php
-// routes/web.php
-
-Route::get('/login/{token}', function(Request $request, $token) {
-    $user = App\User::where('email', $request->get('email'))->first();
-
-    if (!$user) {
-        dd('User not found');
-    }
-
-    if($user->isValidToken($token))
-    {
-        // Login user
-        Auth::login($user);
-    } else {
-        dd("Invalid token");
-    }
-});
-```
-
-Or, if you like working with exceptions:
-
-```php
-// routes/web.php
-
-Route::get('/login/{token}', function(Request $request, $token) {
-    try {
-        $user = App\User::where('email', $request->get('email'))->firstOrFail();
-        $user->validateToken($token);
-
-        Auth::login($user);
-    } catch(Illuminate\Database\Eloquent\ModelNotFoundException $ex) {
-        dd('User not found');
-    } catch(Whyounes\Passwordless\Exceptions\InvalidTokenException $ex) {
-        dd("Invalid token");
-    }
-});
-```
+Check [this repository](https://github.com/Whyounes/laravel-twilio-2fa) for a demo application using the package.
