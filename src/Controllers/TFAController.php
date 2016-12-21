@@ -2,7 +2,6 @@
 
 namespace Whyounes\TFAuth\Controllers;
 
-
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
@@ -188,7 +187,7 @@ trait TFAController
         App::make('auth')->guard()->login($token->user, $session->get('remember', false));
         $session->forget('token_id', 'user_id', 'remember');
 
-        if($this->hasThrottleLoginTrait()) {
+        if ($this->hasThrottleLoginTrait()) {
             $request->session()->regenerate();
             $this->clearLoginAttempts($request);
         }

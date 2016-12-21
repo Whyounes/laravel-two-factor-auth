@@ -206,7 +206,6 @@ class TFAControllerTest extends TestCase
         $response = $controller->storeVerificationCodeForm($request);
         $this->assertInstanceOf(RedirectResponse::class, $response);
         // mock token and guard
-
     }
 
     /**
