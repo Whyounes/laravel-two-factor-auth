@@ -17,7 +17,7 @@ class TwilioTest extends TestCase
         $this->client = $this->getClientMock();
 
         // Mock Twilio say text route
-        Route::get('/twilio/test', ["as" => "tfa.services.twilio.say", "uses" => "TwilioTest@twilioTestRoute"]);
+        Route::get('/twilio/test', ["as" => "tfa.services.twilio.say", "uses" => function(){}]);
     }
 
     public function getClientMock()
@@ -37,10 +37,6 @@ class TwilioTest extends TestCase
         $client->account->calls = $calls;
 
         return $client;
-    }
-
-    public function twilioTestRoute()
-    {
     }
 
     /**

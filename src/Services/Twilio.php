@@ -55,6 +55,7 @@ class Twilio implements VerificationCodeSender
                 ["url" => route('tfa.services.twilio.say', ["text" => sprintf($message, $code)])]
             );
         } catch (\Exception $ex) {
+            throw $ex;
             return false;
         }
 

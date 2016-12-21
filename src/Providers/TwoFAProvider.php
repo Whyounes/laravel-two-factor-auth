@@ -95,10 +95,10 @@ class TwoFAProvider extends ServiceProvider
     {
         /** @var $router Router */
         $router = App::make("router");
-        $router->get("/tfa/services/twilio/say/{text}", function ($text) {
+        $router->get("/tfa/services/twilio/say/{text}", ["as" => "tfa.services.twilio.say", "uses" => function ($text) {
             $response = "<Response><Say>" . $text . "</Say></Response>";
 
             return $response;
-        })->name('tfa.services/twilio.say');
+        }]);
     }
 }
